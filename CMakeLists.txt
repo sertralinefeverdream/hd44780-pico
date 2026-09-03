@@ -9,6 +9,6 @@ target_sources()
 
 target_link_libraries(hd44780_pico
     PRIVATE
-        pico_stdlib 
+        pico_stdlib # Expec
         hardware_gpio
 )
