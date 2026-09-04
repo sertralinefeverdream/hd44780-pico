@@ -1,0 +1,2 @@
+/usr/bin/ar qc libhd44780_pico.a CMakeFiles/hd44780_pico.dir/src/lcd.cpp.o
+/usr/bin/ranlib libhd44780_pico.a

@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/adriangraham/Projects/hd44780-lib/hd44780-lib/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

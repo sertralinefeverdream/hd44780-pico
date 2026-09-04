@@ -5,10 +5,21 @@ project(hd44780_pico)
 
 add_library(hd44780_pico)
 
-target_sources()
+target_sources(hd44780_pico
+    PRIVATE
+        src/lcd.cpp
+        
+    PUBLIC
+        FILE_SET hd44780_headers
+        TYPE HEADERS
+        BASE_DIRS
+            include
+        FILES
+            include/hd44780_pico/lcd.h
+)
 
 target_link_libraries(hd44780_pico
     PRIVATE
-        pico_stdlib # Expec
+        pico_stdlib 
         hardware_gpio
 )
