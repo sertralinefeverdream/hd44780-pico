@@ -6,6 +6,11 @@
 using namespace hd44780pico;
 
 namespace {
+    constexpr uint16_t bm_clear_buffer_data{0b1100'0000'0000};
+    constexpr uint16_t bm_upper_nibble{0x0F0};
+    constexpr uint16_t bm_lower_nibble{0x00F};
+    constexpr uint16_t bm_rs_rw{0x300};
+
     constexpr uint16_t bm_ems{0b00'0000'0100};
     constexpr uint16_t bm_ems_increment{0b10};
     constexpr uint16_t bm_ems_shift_display{0b1};
@@ -48,5 +53,29 @@ LcdDisplay::LcdDisplay(bool enable_two_lines, bool enable_8_bit, bool enable_5_b
             function_set_ |= bm_fs_5_by_10_font;
         }
     }
-
 // private impls
+// 
+void LcdDisplay::execute_instruction(std::uint16_t instr) { 
+    buffer_ &= bm_clear_buffer_data;
+    if (display_control_ & bm_fs_8_bit_mode) { 
+        const auto rs_rw {
+            static_cast<std::uint16_t>(instr & bm_rs_rw)
+        };
+        
+        const auto upper_nibble {
+            static_cast<std::uint16_t>((instr & bm_upper_nibble) | rs_rw)
+        };
+        
+        const auto lower_nibble {
+            static_cast<std::uint16_t>(((instr & bm_lower_nibble) << 4) | rs_rw)
+        };
+        
+        buffer_ |= upper_nibble;
+        pulse_enable(); 
+        buffer_ |= lower_nibble;
+        pulse_enable();
+    } else {
+        buffer_ |= instr; 
+        pulse_enable();
+    }
+}
