@@ -38,6 +38,7 @@ namespace {
     constexpr uint16_t bm_set_ddram{0b00'1000'0000};
     
     constexpr uint16_t bm_init{0b00'0011'0000};
+    constexpr uint16_t bm_blank{0};
 
     // Delays
     constexpr int delay_us_clear_display{2};
@@ -57,19 +58,17 @@ LcdDisplay::LcdDisplay()
     , cursor_display_shift_{bm_cds | bm_cds_dir_right}
     , function_set_{bm_fs} {}
     
-void LcdDisplay::init(bool enable_two_lines, bool enable_8_bit, bool enable_5_by_10) {
-    if (enable_two_lines) {
+void LcdDisplay::init(bool enable_8_bit, LineMode mode) {
+    if (mode == LineMode::ONE_LINE_5_10) {
+        function_set_ |= bm_fs_5_by_10_font;
+    } else if (mode == LineMode::TWO_LINES_5_8) {
         function_set_ |= bm_fs_two_lines;
     }
-        
+    
     if (enable_8_bit) {
         function_set_ |= bm_fs_8_bit_mode;
     }
-        
-    if (enable_5_by_10) {
-        function_set_ |= bm_fs_5_by_10_font;
-
-    }    
+    
     init_io();    
     init_sequence();
 }
@@ -92,6 +91,84 @@ void LcdDisplay::set_display_enabled(bool enabled) {
     }
     
     execute_display_control();
+}
+
+void LcdDisplay::set_backlight_enabled(bool enabled) {
+    if (enabled) {
+        buffer_ |= bm_backlight;
+    } else {
+        buffer_ &= ~bm_backlight;
+    }
+    
+    send_buffer();
+}
+
+void LcdDisplay::set_blink_enabled(bool enabled) {
+    if (enabled) {
+        display_control_ |= bm_dc_blinking_on;
+    } else {
+        display_control_ &= ~bm_dc_blinking_on;
+    }
+    
+    execute_display_control();
+}
+
+void LcdDisplay::set_cursor_enabled(bool enabled) {
+    if (enabled) {
+        display_control_ |= bm_dc_cursor_on;
+    } else {
+        display_control_ &= ~bm_dc_cursor_on; 
+    }
+    
+    execute_display_control();
+}
+
+void LcdDisplay::set_write_direction(Direction dir) {
+    if (dir == Direction::LEFT) {
+        entry_mode_set_ &= ~bm_ems_increment;
+    } else {
+        entry_mode_set_ |= bm_ems_increment;
+    }
+    
+    execute_entry_mode_set();
+}
+
+void LcdDisplay::set_display_shift_enabled(bool enabled) {
+    if (enabled) {
+        entry_mode_set_ |= bm_ems_shift_display;
+    } else {
+        entry_mode_set_ &= ~bm_ems_shift_display;
+    }
+    
+    execute_entry_mode_set();
+}
+
+void LcdDisplay::move_cursor(int n, Direction dir) {
+    if (dir == Direction::LEFT) {
+        cursor_display_shift_ &= ~bm_cds_dir_right;
+    } else {
+        cursor_display_shift_ |= bm_cds_dir_right;
+    }
+    
+    cursor_display_shift_ &= ~bm_cds_shift_screen;
+    
+    for (auto i{0}; i < n; ++i) {
+        execute_cursor_display_shift();        
+    }
+}
+
+void LcdDisplay::move_display(int n, Direction dir) {
+    if (dir == Direction::LEFT) {
+        cursor_display_shift_ &= ~bm_cds_dir_right;
+    } else {
+        cursor_display_shift_ |= bm_cds_dir_right;
+    }
+    
+    cursor_display_shift_ |= bm_cds_shift_screen;
+    
+    for (auto i{0}; i < n; ++i) {
+        execute_cursor_display_shift();
+    }
 }
 
 // Base class private impls

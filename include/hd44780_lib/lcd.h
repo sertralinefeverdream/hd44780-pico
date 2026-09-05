@@ -5,15 +5,15 @@
 #include <string_view>
 
 namespace hd44780pico {
-    enum class OperationMode {
-        FOUR_BIT,
-        EIGHT_BIT,
-    };
-    
     enum class LineMode {
         ONE_LINE_5_8, 
         TWO_LINES_5_8,
         ONE_LINE_5_10,
+    };
+    
+    enum class BitMode {
+        EIGHT_BIT, 
+        FOUR_BIT,
     };
     
     enum class Direction{
@@ -21,16 +21,11 @@ namespace hd44780pico {
         RIGHT,
     };
     
-    enum class ShiftType {
-        SHIFT_CURSOR,
-        SHIFT_DISPLAY,
-    };
-   
     class LcdDisplay {
     public:
         explicit LcdDisplay();
 
-        void init(bool enable_two_lines=true, bool enable_8_bit=false, bool enable_5_by_10=false);
+        void init(bool enable_8_bit, LineMode mode=LineMode::TWO_LINES_5_8);
         void clear_display();
         void return_home();
         void putc(const char c);
@@ -38,8 +33,11 @@ namespace hd44780pico {
         void set_display_enabled(bool enabled);
         void set_backlight_enabled(bool enabled);
         void set_blink_enabled(bool enabled);
-        void shift_cursor(int n);
-        void shift_display(int n);
+        void set_cursor_enabled(bool enabled);
+        void set_write_direction(Direction dir);
+        void set_display_shift_enabled(bool enabled);
+        void move_cursor(int n, Direction dir);
+        void move_display(int n, Direction dir);
         void cursor_goto(const std::uint8_t col, const std::uint8_t row);
         
     protected:
