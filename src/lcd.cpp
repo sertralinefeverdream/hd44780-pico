@@ -83,6 +83,17 @@ void LcdDisplay::return_home() {
     execute_instruction(bm_return_home);
     sleep_ms(delay_ms_return_home);
 }
+
+void LcdDisplay::set_display_enabled(bool enabled) { 
+    if (enabled) {
+        display_control_ |= bm_dc_display_on;
+    } else {
+        display_control_ &= ~bm_dc_display_on;
+    }
+    
+    execute_display_control();
+}
+
 // Base class private impls
 
 void LcdDisplay::execute_entry_mode_set() {
