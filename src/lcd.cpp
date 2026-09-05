@@ -11,6 +11,9 @@ namespace {
     constexpr uint16_t bm_upper_nibble{0x0F0};
     constexpr uint16_t bm_lower_nibble{0x00F};
     constexpr uint16_t bm_rs_rw{0x300};
+    
+    constexpr uint16_t bm_clear_display{0b1};
+    constexpr uint16_t bm_return_home{0b10};
 
     constexpr uint16_t bm_ems{0b00'0000'0100};
     constexpr uint16_t bm_ems_increment{0b10};
@@ -33,9 +36,18 @@ namespace {
     constexpr uint16_t bm_backlight{0b1000'0000'0000};
     constexpr uint16_t bm_enable_e{0b0100'0000'0000};
     constexpr uint16_t bm_set_ddram{0b00'1000'0000};
+    
+    constexpr uint16_t bm_init{0b00'0011'0000};
 
     // Delays
-    constexpr int delay_ms_pulse_enable{2};
+    constexpr int delay_us_clear_display{2};
+    constexpr int delay_us_pulse_enable{2};
+    constexpr int delay_ms_return_home{2};
+    constexpr int delay_us_ems{38};
+    constexpr int delay_us_dc{38};
+    constexpr int delay_us_cds{38};
+    constexpr int delay_us_fs{38};
+    constexpr int delay_us_set_ddram{38};
 }
 //Base class public impls
 
@@ -59,14 +71,40 @@ void LcdDisplay::init(bool enable_two_lines, bool enable_8_bit, bool enable_5_by
 
     }    
     init_io();    
-    if (display_control_ & bm_fs_8_bit_mode)  {
-        init_sequence_8_bit();
-    } else {
-        init_sequence_4_bit();
-    }
+    init_sequence();
 }
 
+void LcdDisplay::clear_display() {
+    execute_instruction(bm_clear_display);
+    sleep_us(delay_us_clear_display);
+}
+
+void LcdDisplay::return_home() {
+    execute_instruction(bm_return_home);
+    sleep_ms(delay_ms_return_home);
+}
 // Base class private impls
+
+void LcdDisplay::execute_entry_mode_set() {
+    execute_instruction(entry_mode_set_);
+    sleep_us(delay_us_ems);
+}
+
+void LcdDisplay::execute_display_control() {
+    execute_instruction(display_control_);
+    sleep_us(delay_us_dc);
+}
+
+void LcdDisplay::execute_cursor_display_shift() {
+    execute_instruction(cursor_display_shift_) ;
+    sleep_us(delay_us_cds);
+}
+
+void LcdDisplay::execute_function_set() {
+    execute_instruction(function_set_);
+    sleep_us(delay_us_fs);
+}
+
 void LcdDisplay::execute_instruction(std::uint16_t instr) { 
     buffer_ &= bm_clear_buffer_data;
     if (display_control_ & bm_fs_8_bit_mode) { 
@@ -83,7 +121,8 @@ void LcdDisplay::execute_instruction(std::uint16_t instr) {
         };
         
         buffer_ |= upper_nibble;
-        pulse_enable(); 
+        pulse_enable();
+        buffer_ &= bm_clear_buffer_data;
         buffer_ |= lower_nibble;
         pulse_enable();
     } else {
@@ -95,6 +134,33 @@ void LcdDisplay::execute_instruction(std::uint16_t instr) {
 void LcdDisplay::pulse_enable() {
     buffer_ |= bm_enable_e;
     send_buffer();
+    sleep_us(delay_us_pulse_enable);
     buffer_ &= ~(bm_enable_e);
+    sleep_us(delay_us_pulse_enable);
     send_buffer();
 }
+
+void LcdDisplay::init_sequence() { 
+    buffer_ &= bm_clear_buffer_data; 
+    sleep_ms(41);
+    buffer_ |= bm_init;
+    send_buffer();
+    sleep_ms(5);
+    send_buffer();
+    sleep_us(101);
+    send_buffer();
+    
+    if (!(function_set_ & bm_fs_8_bit_mode)) {
+        buffer_ &= bm_clear_buffer_data; 
+        buffer_ |= 0x20; 
+        send_buffer();
+    }
+    
+    execute_instruction(function_set_);
+    sleep_us(delay_us_fs);
+    set_display_enabled(false);
+    clear_display();
+    execute_entry_mode_set();
+    set_display_enabled(true);
+}
+

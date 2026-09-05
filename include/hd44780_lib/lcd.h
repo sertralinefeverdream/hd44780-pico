@@ -53,12 +53,14 @@ namespace hd44780pico {
         uint16_t display_control_;
         uint16_t cursor_display_shift_;
         uint16_t function_set_;
-        bool blacklight_enabled_{false};
         
+        void execute_entry_mode_set(); 
+        void execute_display_control();
+        void execute_cursor_display_shift();
+        void execute_function_set();
         void execute_instruction(std::uint16_t instr);
         void pulse_enable();
-        void init_sequence_8_bit();
-        void init_sequence_4_bit();
+        void init_sequence();
     };
 }
 
