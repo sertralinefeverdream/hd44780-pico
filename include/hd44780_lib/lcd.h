@@ -28,8 +28,9 @@ namespace hd44780pico {
    
     class LcdDisplay {
     public:
-        explicit LcdDisplay(bool enable_two_lines=true, bool enable_8_bit=false, bool enable_5_by_10=false);
+        explicit LcdDisplay();
 
+        void init(bool enable_two_lines=true, bool enable_8_bit=false, bool enable_5_by_10=false);
         void clear_display();
         void return_home();
         void putc(const char c);
@@ -56,8 +57,8 @@ namespace hd44780pico {
         
         void execute_instruction(std::uint16_t instr);
         void pulse_enable();
-        void init_sequence();
-   
+        void init_sequence_8_bit();
+        void init_sequence_4_bit();
     };
 }
 
