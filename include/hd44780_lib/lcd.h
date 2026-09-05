@@ -47,6 +47,7 @@ namespace hd44780pico {
         virtual void init_io() const = 0;
 
     private:
+        /*
         enum Instruction : std::uint16_t { // RS, RW, DB7, DB6, DB5, DB4, DB3, DB2, DB1, DB0
             CLEAR_DISPLAY = 0b00'0000'0001,
             RETURN_HOME = 0b00'0000'0010,
@@ -57,19 +58,14 @@ namespace hd44780pico {
             SET_CGRAM = 0b00'0100'0000,
             SET_DDRAM = 0b00'1000'0000,
         };
+        */
+        uint16_t buffer_{}; // Backlight, E, RS, RW, d7, d6, d5, d4, d3, d2, d1, d0
+        uint16_t entry_mode_set_;
+        uint16_t display_control_;
+        uint16_t cursor_display_shift_;
+        uint16_t function_set_;
         
-        std::uint16_t buffer_{}; // 12 bits: BACKLIGHT, E, RS, RW, D0, D1, D2, D3, D4, D5, D6, D7
-        bool backlight_enabled_{true};
-        bool display_enabled_{true};
-        bool blink_enabled_{true};
-        bool shift_on_write_{false};
-        ShiftType shift_type_{ShiftType::SHIFT_CURSOR};
-        Direction cursor_dir_{Direction::RIGHT};
-        OperationMode operation_mode_;
-        LineMode line_mode_;
-
         void execute_instruction(std::uint16_t instr);
-        void set_buffer_raw(uint16_t buf);
         void pulse_enable();
         void init_sequence();
    
