@@ -196,17 +196,10 @@ void LcdDisplay::execute_function_set() {
 void LcdDisplay::execute_instruction(std::uint16_t instr) { 
     buffer_ &= bm_clear_buffer_data;
     if (display_control_ & bm_fs_8_bit_mode) { 
-        const auto rs_rw {
-            static_cast<std::uint16_t>(instr & bm_rs_rw)
-        };
+        const auto rs_rw = static_cast<std::uint16_t>(instr & bm_rs_rw);
+        const auto upper_nibble  = static_cast<std::uint16_t>((instr & bm_upper_nibble) | rs_rw);
+        const auto lower_nibble = static_cast<std::uint16_t>(((instr & bm_lower_nibble) << 4) | rs_rw);
         
-        const auto upper_nibble {
-            static_cast<std::uint16_t>((instr & bm_upper_nibble) | rs_rw)
-        };
-        
-        const auto lower_nibble {
-            static_cast<std::uint16_t>(((instr & bm_lower_nibble) << 4) | rs_rw)
-        };
         
         buffer_ |= upper_nibble;
         pulse_enable();
