@@ -25,7 +25,7 @@ namespace hd44780pico {
     public:
         explicit LcdDisplay();
 
-        void init(bool enable_8_bit, LineMode mode=LineMode::TWO_LINES_5_8);
+        void init(BitMode bit_mode=BitMode::FOUR_BIT, LineMode line_mode=LineMode::TWO_LINES_5_8);
         void clear_display();
         void return_home();
         void putc(const char c);
@@ -47,16 +47,18 @@ namespace hd44780pico {
 
     private:
         uint16_t buffer_; // Backlight, E, RS, RW, d7, d6, d5, d4, d3, d2, d1, d0
-        uint16_t entry_mode_set_;
-        uint16_t display_control_;
-        uint16_t cursor_display_shift_;
-        uint16_t function_set_;
+        uint16_t entry_mode_set_cmd_;
+        uint16_t display_control_cmd_;
+        uint16_t cursor_display_shift_cmd_;
+        uint16_t function_set_cmd_;
         
-        void execute_entry_mode_set(); 
-        void execute_display_control();
-        void execute_cursor_display_shift();
-        void execute_function_set();
-        void execute_instruction(std::uint16_t instr);
+        void entry_mode_set(); 
+        void display_control();
+        void cursor_display_shift();
+        void function_set();
+        void set_ddram_addr(std::uint16_t addr);
+        void write_ddram_data(std::uint16_t addr);
+        void execute_cmd(std::uint16_t instr);
         void pulse_enable();
         void init_sequence();
     };
