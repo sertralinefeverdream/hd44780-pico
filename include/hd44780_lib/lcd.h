@@ -28,7 +28,7 @@ namespace hd44780pico {
    
     class LcdDisplay {
     public:
-        explicit LcdDisplay(OperationMode op_mode=OperationMode::FOUR_BIT, LineMode line_mode=LineMode::TWO_LINES_5_8);
+        explicit LcdDisplay(bool enable_two_lines=true, bool enable_8_bit=false, bool enable_5_by_10=false);
 
         void clear_display();
         void return_home();
@@ -59,7 +59,7 @@ namespace hd44780pico {
             SET_DDRAM = 0b00'1000'0000,
         };
         */
-        uint16_t buffer_{}; // Backlight, E, RS, RW, d7, d6, d5, d4, d3, d2, d1, d0
+        uint16_t buffer_; // Backlight, E, RS, RW, d7, d6, d5, d4, d3, d2, d1, d0
         uint16_t entry_mode_set_;
         uint16_t display_control_;
         uint16_t cursor_display_shift_;
