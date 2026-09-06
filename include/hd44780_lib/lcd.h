@@ -1,5 +1,5 @@
-#ifndef HD44780_LCD_TRANSPORT_H
-#define HD44780_LCD_TRANSPORT_H
+#ifndef HD44780_LCD_H
+#define HD44780_LCD_H
 
 #include <cstdint>
 #include <string_view>
@@ -28,8 +28,8 @@ namespace hd44780pico {
         void init(BitMode bit_mode=BitMode::FOUR_BIT, LineMode line_mode=LineMode::TWO_LINES_5_8);
         void clear_display();
         void return_home();
-        void putc(const char c);
-        void puts(const std::string_view s);
+        void putc(char c);
+        void puts(std::string_view s);
         void set_display_enabled(bool enabled);
         void set_backlight_enabled(bool enabled);
         void set_blink_enabled(bool enabled);
@@ -38,7 +38,7 @@ namespace hd44780pico {
         void set_display_shift_enabled(bool enabled);
         void move_cursor(int n, Direction dir);
         void move_display(int n, Direction dir);
-        void cursor_goto(const std::uint8_t col, const std::uint8_t row);
+        void cursor_goto(std::uint16_t col, std::uint16_t row);
         
     protected:
         virtual const std::uint16_t buffer() const;
