@@ -2,6 +2,8 @@
 #define HD44780_LCD_H
 
 #include <cstdint>
+#include <cstdlib>
+#include <array>
 #include <string_view>
 
 namespace hd44780pico {
@@ -16,14 +18,33 @@ namespace hd44780pico {
         FOUR_BIT,
     };
     
-    enum class Direction{
+    enum class Direction {
         LEFT,
         RIGHT,
     };
     
+    enum LcdPin {
+        BACKLIGHT,
+        E,
+        RS,
+        RW,
+        D7,
+        D6,
+        D5,
+        D4,
+        D3,
+        D2,
+        D1,
+        D0,
+        NUM_PINS,
+    };
+    
+    using Mapping = std::array<std::uint8_t, static_cast<std::size_t>(LcdPin::NUM_PINS)>;
+    inline constexpr std::uint8_t unused_pin{UINT8_MAX};
+    
     class LcdDisplay {
     public:
-        explicit LcdDisplay();
+        explicit LcdDisplay(Mapping mapping_);
 
         void init(BitMode bit_mode=BitMode::FOUR_BIT, LineMode line_mode=LineMode::TWO_LINES_5_8);
         void clear_display();
@@ -41,16 +62,21 @@ namespace hd44780pico {
         void cursor_goto(std::uint16_t col, std::uint16_t row);
         
     protected:
-        virtual const std::uint16_t buffer() const;
+        Mapping mapping_;    
+
         virtual void send_buffer() const = 0;
         virtual void init_io() const = 0;
+        std::uint16_t buffer() const;
+        bool is_8_bit_enabled() const;
+        bool is_two_lines_enabled() const;
+        void init_sequence();
 
     private:
-        uint16_t buffer_; // Backlight, E, RS, RW, d7, d6, d5, d4, d3, d2, d1, d0
-        uint16_t entry_mode_set_cmd_;
-        uint16_t display_control_cmd_;
-        uint16_t cursor_display_shift_cmd_;
-        uint16_t function_set_cmd_;
+        std::uint16_t buffer_; // Backlight, E, RS, RW, d7, d6, d5, d4, d3, d2, d1, d0
+        std::uint16_t entry_mode_set_cmd_;
+        std::uint16_t display_control_cmd_;
+        std::uint16_t cursor_display_shift_cmd_;
+        std::uint16_t function_set_cmd_;
         
         void entry_mode_set(); 
         void display_control();
@@ -60,7 +86,6 @@ namespace hd44780pico {
         void write_ddram_data(std::uint16_t addr);
         void execute_cmd(std::uint16_t instr);
         void pulse_enable();
-        void init_sequence();
     };
 }
 

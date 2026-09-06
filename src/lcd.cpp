@@ -1,7 +1,8 @@
-#include "hd44780_pico/lcd.h"
+//#include "hd44780_pico/lcd.h"
+#include "../include/hd44780_pico/lcd.h"
 
 #include <string_view>
-#include <algorithm>
+#include <cstdint>
 
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
@@ -61,8 +62,9 @@ namespace {
 }
 //Base class public impls
 
-LcdDisplay::LcdDisplay()
-    : entry_mode_set_cmd_{bm_ems | bm_ems_increment}
+LcdDisplay::LcdDisplay(Mapping mapping)
+    : mapping_{mapping}
+    , entry_mode_set_cmd_{bm_ems | bm_ems_increment}
     , display_control_cmd_{bm_dc | bm_dc_display_on | bm_dc_cursor_on | bm_dc_blinking_on}
     , cursor_display_shift_cmd_{bm_cds | bm_cds_dir_right}
     , function_set_cmd_{bm_fs} {}
@@ -191,17 +193,28 @@ void LcdDisplay::move_display(int n, Direction dir) {
 }
 
 void LcdDisplay::cursor_goto(std::uint16_t col, std::uint16_t row=0) {
-    const bool two_lines_enabled = (function_set_cmd_ & bm_fs_two_lines);
-    const std::uint16_t max_col = two_lines_enabled ? 39 : 79;
-    const std::uint16_t max_row = two_lines_enabled ? 1 : 0;
+    const std::uint16_t max_col = is_two_lines_enabled() ? 39 : 79;
+    const std::uint16_t max_row = is_two_lines_enabled() ? 1 : 0;
 
     col = std::clamp(col, (uint16_t)0, max_col);
     row = std::clamp(row, (uint16_t)0, max_row);
     set_ddram_addr(row > 0 ? (col | 0x40) : col);
 }
 
-// Base class private impls
+// Protected impls
+std::uint16_t LcdDisplay::buffer() const {
+    return buffer_;
+}
 
+bool LcdDisplay::is_8_bit_enabled() const {
+    return function_set_cmd_ & bm_fs_8_bit_mode;
+}
+
+bool LcdDisplay::is_two_lines_enabled() const {
+    return function_set_cmd_ & bm_fs_two_lines;
+}
+
+// Private impls
 void LcdDisplay::entry_mode_set() {
     execute_cmd(entry_mode_set_cmd_);
     sleep_us(delay_us_ems);
@@ -238,7 +251,10 @@ void LcdDisplay::write_ddram_data(std::uint16_t data) {
 
 void LcdDisplay::execute_cmd(std::uint16_t instr) { 
     buffer_ &= bm_clear_buffer_data;
-    if (display_control_cmd_ & bm_fs_8_bit_mode) { 
+    if (is_8_bit_enabled()) { 
+        buffer_ |= instr; 
+        pulse_enable();
+    } else {
         const std::uint16_t rs_rw = instr & bm_rs_rw;
         const std::uint16_t upper_nibble = (instr & bm_upper_nibble) | rs_rw;
         const std::uint16_t lower_nibble = ((instr & bm_lower_nibble) << 4) | rs_rw;
@@ -247,9 +263,6 @@ void LcdDisplay::execute_cmd(std::uint16_t instr) {
         pulse_enable();
         buffer_ &= bm_clear_buffer_data;
         buffer_ |= lower_nibble;
-        pulse_enable();
-    } else {
-        buffer_ |= instr; 
         pulse_enable();
     }
 }
@@ -273,17 +286,18 @@ void LcdDisplay::init_sequence() {
     sleep_us(101);
     send_buffer();
     
-    if (!(function_set_cmd_ & bm_fs_8_bit_mode)) {
+    if (!(is_8_bit_enabled())) {
         buffer_ &= bm_clear_buffer_data; 
         buffer_ |= 0x20; 
         send_buffer();
     }
     
-    execute_cmd(function_set_cmd_);
+    function_set();
     sleep_us(delay_us_fs);
     set_display_enabled(false);
     clear_display();
     entry_mode_set();
     set_display_enabled(true);
 }
+
 
