@@ -1,6 +1,9 @@
-//#include "hd44780_pico/lcd.h"
-#include "../include/hd44780_pico/lcd.h"
+#include "hd44780_pico/lcd.h"
+//#include "../include/hd44780_pico/lcd.h"
 
+#include <cstdio>
+#include <algorithm>
+#include <functional>
 #include <string_view>
 #include <cstdint>
 
@@ -58,9 +61,25 @@ namespace {
     constexpr int delay_us_fs{38};
     constexpr int delay_us_set_ddram{38};
     constexpr int delay_us_write_ddram{38};
-    
 }
-//Base class public impls
+
+std::array<std::reference_wrapper<const std::uint8_t>, Mapping::NUM_PINS> Mapping::as_array() const {
+    return std::array<std::reference_wrapper<const std::uint8_t>, Mapping::NUM_PINS> {
+        backlight,
+        e,
+        rs,
+        rw,
+        d7,
+        d6,
+        d5,
+        d4,
+        d3,
+        d2,
+        d1,
+        d0
+    };
+}
+// Lcd Base class public impls
 
 LcdDisplay::LcdDisplay(Mapping mapping)
     : mapping_{mapping}
@@ -75,6 +94,8 @@ void LcdDisplay::init(BitMode bit_mode, LineMode line_mode) {
     } else if (line_mode == LineMode::TWO_LINES_5_8) {
         function_set_cmd_ |= bm_fs_two_lines;
     }
+    
+    printf("Initialised!\n");
     
     if (bit_mode == BitMode::EIGHT_BIT) {
         function_set_cmd_ |= bm_fs_8_bit_mode;
@@ -268,28 +289,33 @@ void LcdDisplay::execute_cmd(std::uint16_t instr) {
 }
 
 void LcdDisplay::pulse_enable() {
+    for (int i = 0; i < 12; ++i) {
+        printf("%d", (buffer_ >> (11 - i)) & 0x1);
+    }
+    printf("Done\n");
+
     buffer_ |= bm_enable_e;
     send_buffer();
     sleep_us(delay_us_pulse_enable);
     buffer_ &= ~(bm_enable_e);
-    sleep_us(delay_us_pulse_enable);
     send_buffer();
+    sleep_us(delay_us_pulse_enable);
 }
 
 void LcdDisplay::init_sequence() { 
     buffer_ &= bm_clear_buffer_data; 
     sleep_ms(41);
     buffer_ |= bm_init;
-    send_buffer();
+    pulse_enable();
     sleep_ms(5);
-    send_buffer();
+    pulse_enable();
     sleep_us(101);
-    send_buffer();
+    pulse_enable();
     
     if (!(is_8_bit_enabled())) {
         buffer_ &= bm_clear_buffer_data; 
         buffer_ |= 0x20; 
-        send_buffer();
+        pulse_enable();
     }
     
     function_set();

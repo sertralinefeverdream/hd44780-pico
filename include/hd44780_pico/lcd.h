@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <array>
+#include <functional>
 #include <string_view>
 
 namespace hd44780pico {
@@ -39,8 +40,41 @@ namespace hd44780pico {
         NUM_PINS,
     };
     
-    using Mapping = std::array<std::uint8_t, static_cast<std::size_t>(LcdPin::NUM_PINS)>;
-    inline constexpr std::uint8_t unused_pin{UINT8_MAX};
+    struct Mapping {
+        static constexpr std::uint8_t unused_pin{UINT8_MAX};
+
+        enum index {
+            BACKLIGHT,
+            E,
+            RS,
+            RW,
+            D7,
+            D6,
+            D5,
+            D4,
+            D3,
+            D2,
+            D1,
+            D0,
+            NUM_PINS
+        };
+
+        std::uint8_t backlight{unused_pin};
+        std::uint8_t e{unused_pin};
+        std::uint8_t rs{unused_pin};
+        std::uint8_t rw{unused_pin};
+
+        std::uint8_t d7{unused_pin};
+        std::uint8_t d6{unused_pin};
+        std::uint8_t d5{unused_pin};
+        std::uint8_t d4{unused_pin};
+        std::uint8_t d3{unused_pin};
+        std::uint8_t d2{unused_pin};
+        std::uint8_t d1{unused_pin};
+        std::uint8_t d0{unused_pin};
+        
+        std::array<std::reference_wrapper<const std::uint8_t>, NUM_PINS> as_array() const;
+    };
     
     class LcdDisplay {
     public:
