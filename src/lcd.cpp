@@ -14,10 +14,10 @@ using namespace hd44780pico;
 
 namespace {
     // Bitmasks
-    constexpr std::uint16_t bm_clear_buffer_data{0b1100'0000'0000};
-    constexpr std::uint16_t bm_upper_nibble{0x0F0};
-    constexpr std::uint16_t bm_lower_nibble{0x00F};
-    constexpr std::uint16_t bm_rs_rw{0x300};
+    constexpr std::uint16_t bm_clear_buffer_data_pins{0b1100'0000'0000};
+    constexpr std::uint16_t bm_upper_nibble{0b00'1111'0000}; //
+    constexpr std::uint16_t bm_lower_nibble{0x00'0000'1111}; //
+    constexpr std::uint16_t bm_rs_rw{0b11'0000'0000}; 
     
     constexpr std::uint16_t bm_clear_display{0b1};
     constexpr std::uint16_t bm_return_home{0b10};
@@ -236,6 +236,11 @@ bool LcdDisplay::is_two_lines_enabled() const {
 }
 
 // Private impls
+
+void LcdDisplay::clear_buffer_data_pins() {
+    buffer_ &= bm_clear_buffer_data_pins;
+}
+
 void LcdDisplay::entry_mode_set() {
     execute_cmd(entry_mode_set_cmd_);
     sleep_us(delay_us_ems);
@@ -271,8 +276,9 @@ void LcdDisplay::write_ddram_data(std::uint16_t data) {
 }
 
 void LcdDisplay::execute_cmd(std::uint16_t instr) { 
-    buffer_ &= bm_clear_buffer_data;
+    //printf("instr = 0x%03X\n", instr);
     if (is_8_bit_enabled()) { 
+        clear_buffer_data_pins();
         buffer_ |= instr; 
         pulse_enable();
     } else {
@@ -280,19 +286,26 @@ void LcdDisplay::execute_cmd(std::uint16_t instr) {
         const std::uint16_t upper_nibble = (instr & bm_upper_nibble) | rs_rw;
         const std::uint16_t lower_nibble = ((instr & bm_lower_nibble) << 4) | rs_rw;
         
+        clear_buffer_data_pins();
         buffer_ |= upper_nibble;
         pulse_enable();
-        buffer_ &= bm_clear_buffer_data;
+        clear_buffer_data_pins();
         buffer_ |= lower_nibble;
         pulse_enable();
     }
 }
 
+                             //
 void LcdDisplay::pulse_enable() {
+    /*
+    printf("buffer = 0x%03X\n", buffer_);
+
     for (int i = 0; i < 12; ++i) {
-        printf("%d", (buffer_ >> (11 - i)) & 0x1);
+        printf("%u", static_cast<unsigned>((buffer_ >> (11 - i)) & 0x1));
     }
-    printf("Done\n");
+
+    printf("\n");
+    */
 
     buffer_ |= bm_enable_e;
     send_buffer();
@@ -303,7 +316,7 @@ void LcdDisplay::pulse_enable() {
 }
 
 void LcdDisplay::init_sequence() { 
-    buffer_ &= bm_clear_buffer_data; 
+    clear_buffer_data_pins();
     sleep_ms(41);
     buffer_ |= bm_init;
     pulse_enable();
@@ -313,7 +326,7 @@ void LcdDisplay::init_sequence() {
     pulse_enable();
     
     if (!(is_8_bit_enabled())) {
-        buffer_ &= bm_clear_buffer_data; 
+        clear_buffer_data_pins();
         buffer_ |= 0x20; 
         pulse_enable();
     }

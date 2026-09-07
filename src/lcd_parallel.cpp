@@ -10,12 +10,12 @@ LcdDisplayParallelGpio::LcdDisplayParallelGpio(Mapping mapping)
     : LcdDisplay(mapping) {}
 
 void LcdDisplayParallelGpio::send_buffer() const {
-    auto buf = buffer();
+    const auto buf = buffer();
     const int end = is_8_bit_enabled() ? Mapping::NUM_PINS : Mapping::D3;
-    
-    auto mapping = mapping_.as_array();
+    const auto mapping = mapping_.as_array();
+
     for (int i{0}; i < end; ++i) {
-        const auto pin{mapping[i]};
+        const auto pin{mapping[i].get()};
         if (pin == Mapping::unused_pin) {
             continue;
         }
@@ -26,13 +26,14 @@ void LcdDisplayParallelGpio::send_buffer() const {
 void LcdDisplayParallelGpio::init_io() const {
     const int end = is_8_bit_enabled() ? NUM_PINS : D3;
     auto mapping = mapping_.as_array();
+
     for (int i{0}; i < end; ++i) {
         const auto pin{mapping[i].get()};
         if (pin == Mapping::unused_pin) {
             continue;
         }
+        gpio_init(pin);
         gpio_put(pin, false);
         gpio_set_dir(pin, GPIO_OUT);
-        gpio_init(pin);
     }
 }

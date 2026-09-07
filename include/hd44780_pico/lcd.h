@@ -106,12 +106,13 @@ namespace hd44780pico {
         void init_sequence();
 
     private:
-        std::uint16_t buffer_; // Backlight, E, RS, RW, d7, d6, d5, d4, d3, d2, d1, d0
         std::uint16_t entry_mode_set_cmd_;
         std::uint16_t display_control_cmd_;
         std::uint16_t cursor_display_shift_cmd_;
         std::uint16_t function_set_cmd_;
+        std::uint16_t buffer_{}; // Backlight, E, RS, RW, d7, d6, d5, d4, d3, d2, d1, d0
         
+        void clear_buffer_data_pins();
         void entry_mode_set(); 
         void display_control();
         void cursor_display_shift();
