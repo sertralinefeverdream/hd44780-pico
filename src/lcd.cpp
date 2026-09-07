@@ -6,6 +6,7 @@
 #include <string_view>
 #include <cstddef>
 #include <cassert>
+#include <cstdio>
 
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
@@ -16,7 +17,7 @@ namespace {
     // Bitmasks
     constexpr std::uint16_t bm_clear_buffer_data_pins{0b1100'0000'0000};
     constexpr std::uint16_t bm_upper_nibble{0b00'1111'0000}; //
-    constexpr std::uint16_t bm_lower_nibble{0x00'0000'1111}; //
+    constexpr std::uint16_t bm_lower_nibble{0b00'0000'1111}; //
     constexpr std::uint16_t bm_rs_rw{0b11'0000'0000}; 
     
     constexpr std::uint16_t bm_clear_display{0b1};
@@ -81,6 +82,8 @@ std::uint8_t Mapping::operator[](std::size_t pin) const {
             return d7;
         case D6:
             return d6;
+        case D5:
+            return d5;
         case D4:
             return d4;
         case D3:
@@ -236,6 +239,11 @@ void LcdDisplay::cursor_goto(std::uint16_t col, std::uint16_t row=0) {
 }
 
 // Protected impls
+Mapping LcdDisplay::mapping() const {
+    return mapping_;
+}
+
+
 std::uint16_t LcdDisplay::buffer() const {
     return buffer_;
 }
@@ -270,6 +278,7 @@ void LcdDisplay::cursor_display_shift() {
 }
 
 void LcdDisplay::function_set() {
+    printf("FUNCTION SET = 0x%02X\n", function_set_cmd_);
     execute_cmd(function_set_cmd_);
     sleep_us(delay_us_fs);
 }
@@ -310,17 +319,6 @@ void LcdDisplay::execute_cmd(std::uint16_t instr) {
 
                              //
 void LcdDisplay::pulse_enable() {
-    /*
-    printf("buffer = 0x%03X\n", buffer_);
-
-    for (int i = 0; i < 12; ++i) {
-        printf("%u", static_cast<unsigned>((buffer_ >> (11 - i)) & 0x1));
-    }
-
-    printf("\n");
-    */
-
-
     buffer_ |= bm_enable_e;
     send_buffer();
     sleep_us(delay_us_pulse_enable);

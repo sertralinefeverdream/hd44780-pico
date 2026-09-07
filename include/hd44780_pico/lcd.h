@@ -79,11 +79,10 @@ namespace hd44780pico {
         void cursor_goto(std::uint16_t col, std::uint16_t row);
         
     protected:
-        Mapping mapping_;    
-
         virtual void send_buffer() const = 0;
         virtual void init_io() const = 0;
         std::uint16_t buffer() const;
+        Mapping mapping() const;
         bool is_8_bit_enabled() const;
         bool is_two_lines_enabled() const;
         void init_sequence();
@@ -94,6 +93,7 @@ namespace hd44780pico {
         std::uint16_t cursor_display_shift_cmd_;
         std::uint16_t function_set_cmd_;
         std::uint16_t buffer_{}; // Backlight, E, RS, RW, d7, d6, d5, d4, d3, d2, d1, d0
+        Mapping mapping_;
         
         void clear_buffer_data_pins();
         void entry_mode_set(); 

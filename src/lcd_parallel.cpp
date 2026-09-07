@@ -1,6 +1,7 @@
 #include "hd44780_pico/lcd_parallel.h"
 #include "hd44780_pico/lcd.h"
 
+#include <cstdio>
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 
@@ -11,10 +12,18 @@ LcdDisplayParallelGpio::LcdDisplayParallelGpio(Mapping mapping)
 
 void LcdDisplayParallelGpio::send_buffer() const {
     const auto buf = buffer();
+    printf("BUF = %03X  D7..D4 = %d%d%d%d\n",
+        buf,
+        (buf >> 7) & 1,
+        (buf >> 6) & 1,
+        (buf >> 5) & 1,
+        (buf >> 4) & 1);
+
+    const auto pin_map = mapping();
     const int end = is_8_bit_enabled() ? NUM_PINS : D3;
 
     for (int i{0}; i < end; ++i) {
-        const auto pin{mapping_[i]};
+        const auto pin{pin_map[i]};
         if (pin == Mapping::unused_pin) {
             continue;
         }
@@ -23,10 +32,11 @@ void LcdDisplayParallelGpio::send_buffer() const {
 }
 
 void LcdDisplayParallelGpio::init_io() const {
+    const auto pin_map = mapping();
     const int end = is_8_bit_enabled() ? NUM_PINS : D3;
 
     for (int i{0}; i < end; ++i) {
-        const auto pin{mapping_[i]};
+        const auto pin{pin_map[i]};
         if (pin == Mapping::unused_pin) {
             continue;
         }
