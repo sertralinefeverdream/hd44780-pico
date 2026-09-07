@@ -1,11 +1,11 @@
 #include "hd44780_pico/lcd.h"
 //#include "../include/hd44780_pico/lcd.h"
 
-#include <cstdio>
 #include <algorithm>
 #include <functional>
 #include <string_view>
-#include <cstdint>
+#include <cstddef>
+#include <cassert>
 
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
@@ -63,23 +63,38 @@ namespace {
     constexpr int delay_us_write_ddram{38};
 }
 
-std::array<std::reference_wrapper<const std::uint8_t>, Mapping::NUM_PINS> Mapping::as_array() const {
-    return std::array<std::reference_wrapper<const std::uint8_t>, Mapping::NUM_PINS> {
-        backlight,
-        e,
-        rs,
-        rw,
-        d7,
-        d6,
-        d5,
-        d4,
-        d3,
-        d2,
-        d1,
-        d0
-    };
-}
 // Lcd Base class public impls
+// 
+
+std::uint8_t Mapping::operator[](std::size_t pin) const {
+    assert(pin < LcdPin::NUM_PINS);
+    switch (pin) {
+        case BACKLIGHT: 
+            return backlight;
+        case E:
+            return e;
+        case RS:
+            return rs;
+        case RW:
+            return rw;
+        case D7:
+            return d7;
+        case D6:
+            return d6;
+        case D4:
+            return d4;
+        case D3:
+            return d3;
+        case D2:
+            return d2;
+        case D1:
+            return d1;
+        case D0:
+            return d0;
+        default:
+            return unused_pin;
+    }
+}
 
 LcdDisplay::LcdDisplay(Mapping mapping)
     : mapping_{mapping}
@@ -94,8 +109,6 @@ void LcdDisplay::init(BitMode bit_mode, LineMode line_mode) {
     } else if (line_mode == LineMode::TWO_LINES_5_8) {
         function_set_cmd_ |= bm_fs_two_lines;
     }
-    
-    printf("Initialised!\n");
     
     if (bit_mode == BitMode::EIGHT_BIT) {
         function_set_cmd_ |= bm_fs_8_bit_mode;
@@ -285,7 +298,7 @@ void LcdDisplay::execute_cmd(std::uint16_t instr) {
         const std::uint16_t rs_rw = instr & bm_rs_rw;
         const std::uint16_t upper_nibble = (instr & bm_upper_nibble) | rs_rw;
         const std::uint16_t lower_nibble = ((instr & bm_lower_nibble) << 4) | rs_rw;
-        
+
         clear_buffer_data_pins();
         buffer_ |= upper_nibble;
         pulse_enable();
@@ -306,6 +319,7 @@ void LcdDisplay::pulse_enable() {
 
     printf("\n");
     */
+
 
     buffer_ |= bm_enable_e;
     send_buffer();

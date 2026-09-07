@@ -2,7 +2,7 @@
 #define HD44780_LCD_H
 
 #include <cstdint>
-#include <cstdlib>
+#include <cstddef>
 #include <array>
 #include <functional>
 #include <string_view>
@@ -24,7 +24,7 @@ namespace hd44780pico {
         RIGHT,
     };
     
-    enum LcdPin {
+    enum LcdPin : std::size_t {
         BACKLIGHT,
         E,
         RS,
@@ -43,27 +43,10 @@ namespace hd44780pico {
     struct Mapping {
         static constexpr std::uint8_t unused_pin{UINT8_MAX};
 
-        enum index {
-            BACKLIGHT,
-            E,
-            RS,
-            RW,
-            D7,
-            D6,
-            D5,
-            D4,
-            D3,
-            D2,
-            D1,
-            D0,
-            NUM_PINS
-        };
-
         std::uint8_t backlight{unused_pin};
         std::uint8_t e{unused_pin};
         std::uint8_t rs{unused_pin};
         std::uint8_t rw{unused_pin};
-
         std::uint8_t d7{unused_pin};
         std::uint8_t d6{unused_pin};
         std::uint8_t d5{unused_pin};
@@ -73,7 +56,7 @@ namespace hd44780pico {
         std::uint8_t d1{unused_pin};
         std::uint8_t d0{unused_pin};
         
-        std::array<std::reference_wrapper<const std::uint8_t>, NUM_PINS> as_array() const;
+        std::uint8_t operator[](std::size_t pin) const;
     };
     
     class LcdDisplay {
