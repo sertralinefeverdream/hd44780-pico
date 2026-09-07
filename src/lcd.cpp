@@ -37,7 +37,7 @@ namespace {
     constexpr std::uint16_t bm_cds_dir_right{0b100};
     
     constexpr std::uint16_t bm_fs{0b00'0010'0000};
-    constexpr std::uint16_t bm_fs_8_bit_mode{0b10000};
+    constexpr std::uint16_t bm_fs_8_bit_mode{0b1'0000};
     constexpr std::uint16_t bm_fs_two_lines{0b1000};
     constexpr std::uint16_t bm_fs_5_by_10_font{0b100};
     
@@ -53,7 +53,7 @@ namespace {
     constexpr std::uint16_t bm_blank{0};
 
     // Delays
-    constexpr int delay_us_clear_display{2};
+    constexpr int delay_ms_clear_display{2};
     constexpr int delay_us_pulse_enable{2};
     constexpr int delay_ms_return_home{2};
     constexpr int delay_us_ems{38};
@@ -102,7 +102,7 @@ std::uint8_t Mapping::operator[](std::size_t pin) const {
 LcdDisplay::LcdDisplay(Mapping mapping)
     : mapping_{mapping}
     , entry_mode_set_cmd_{bm_ems | bm_ems_increment}
-    , display_control_cmd_{bm_dc | bm_dc_display_on | bm_dc_cursor_on | bm_dc_blinking_on}
+    , display_control_cmd_{bm_dc | bm_dc_display_on}
     , cursor_display_shift_cmd_{bm_cds | bm_cds_dir_right}
     , function_set_cmd_{bm_fs} {}
     
@@ -123,7 +123,7 @@ void LcdDisplay::init(BitMode bit_mode, LineMode line_mode) {
 
 void LcdDisplay::clear_display() {
     execute_cmd(bm_clear_display);
-    sleep_us(delay_us_clear_display);
+    sleep_ms(delay_ms_clear_display);
 }
 
 void LcdDisplay::return_home() {
@@ -344,7 +344,6 @@ void LcdDisplay::init_sequence() {
     }
     
     function_set();
-    sleep_us(delay_us_fs);
     set_display_enabled(false);
     clear_display();
     entry_mode_set();
