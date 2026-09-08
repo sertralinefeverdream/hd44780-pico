@@ -2,6 +2,8 @@
 #include "hd44780_pico/lcd.h"
 
 #include <cstdio>
+#include <cstdint>
+
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 

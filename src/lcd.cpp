@@ -2,13 +2,11 @@
 //#include "../include/hd44780_pico/lcd.h"
 
 #include <algorithm>
-#include <functional>
-#include <string_view>
+#include <cstdint>
 #include <cstddef>
 #include <cassert>
-#include <cstdio>
+#include <string_view>
 
-#include "pico/stdlib.h"
 #include "hardware/gpio.h"
 
 using namespace hd44780pico;

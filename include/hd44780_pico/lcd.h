@@ -3,8 +3,6 @@
 
 #include <cstdint>
 #include <cstddef>
-#include <array>
-#include <functional>
 #include <string_view>
 
 namespace hd44780pico {
