@@ -1,3 +1,0 @@
-/home/adriangraham/Projects/hd44780-lib/hd44780-lib/build/CMakeFiles/hd44780_pico.dir
-/home/adriangraham/Projects/hd44780-lib/hd44780-lib/build/CMakeFiles/edit_cache.dir
-/home/adriangraham/Projects/hd44780-lib/hd44780-lib/build/CMakeFiles/rebuild_cache.dir
