@@ -12,13 +12,6 @@ LcdDisplayParallelGpio::LcdDisplayParallelGpio(Mapping mapping)
 
 void LcdDisplayParallelGpio::send_buffer() const {
     const auto buf = buffer();
-    printf("BUF = %03X  D7..D4 = %d%d%d%d\n",
-        buf,
-        (buf >> 7) & 1,
-        (buf >> 6) & 1,
-        (buf >> 5) & 1,
-        (buf >> 4) & 1);
-
     const auto pin_map = mapping();
     const int end = is_8_bit_enabled() ? NUM_PINS : D3;
 
