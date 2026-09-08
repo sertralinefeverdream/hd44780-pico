@@ -275,7 +275,6 @@ void LcdDisplay::cursor_display_shift() {
 }
 
 void LcdDisplay::function_set() {
-    printf("FUNCTION SET = 0x%02X\n", function_set_cmd_);
     execute_cmd(function_set_cmd_);
     sleep_us(delay_us_fs);
 }
@@ -295,7 +294,6 @@ void LcdDisplay::write_ddram_data(std::uint16_t data) {
 }
 
 void LcdDisplay::execute_cmd(std::uint16_t instr) { 
-    //printf("instr = 0x%03X\n", instr);
     if (is_8_bit_enabled()) { 
         clear_buffer_data_pins();
         buffer_ |= instr; 
