@@ -4,7 +4,6 @@
 #include <cstdio>
 #include <cstdint>
 
-#include "pico/stdlib.h"
 #include "hardware/gpio.h"
 
 using namespace hd44780pico;
