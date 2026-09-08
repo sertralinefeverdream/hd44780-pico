@@ -65,7 +65,6 @@ namespace {
 }
 
 // Lcd Base class public impls
-// 
 
 std::uint8_t Mapping::operator[](std::size_t pin) const {
     assert(pin < LcdPin::NUM_PINS);
