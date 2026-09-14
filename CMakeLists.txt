@@ -30,4 +30,5 @@ target_link_libraries(hd44780_pico
     PRIVATE
         pico_stdlib 
         hardware_gpio
+        hardware_i2c
 )

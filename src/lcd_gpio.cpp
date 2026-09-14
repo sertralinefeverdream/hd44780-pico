@@ -1,4 +1,4 @@
-#include "hd44780_pico/lcd_parallel.h"
+#include "hd44780_pico/lcd_gpio.h"
 #include "hd44780_pico/lcd.h"
 
 #include <cstdio>

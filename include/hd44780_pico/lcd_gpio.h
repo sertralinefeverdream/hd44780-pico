@@ -1,5 +1,5 @@
-#ifndef HD44780_LCD_PARALLEL_H
-#define HD44780_LCD_PARALLEL_H
+#ifndef HD44780_LCD_GPIO_H
+#define HD44780_LCD_GPIO_H
 
 #include "hd44780_pico/lcd.h"
 

@@ -78,7 +78,7 @@ namespace hd44780pico {
         
     protected:
         virtual void send_buffer() const = 0;
-        virtual void init_io() const = 0;
+        virtual void init_io() const; // Optional to implement
         std::uint16_t buffer() const;
         Mapping mapping() const;
         bool is_8_bit_enabled() const;

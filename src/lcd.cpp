@@ -1,5 +1,4 @@
 #include "hd44780_pico/lcd.h"
-//#include "../include/hd44780_pico/lcd.h"
 
 #include <algorithm>
 #include <cstdint>
@@ -117,6 +116,8 @@ void LcdDisplay::init(BitMode bit_mode, LineMode line_mode) {
     init_io();    
     init_sequence();
 }
+
+void LcdDisplay::init_io() {} // Optional to implement.
 
 void LcdDisplay::clear_display() {
     execute_cmd(bm_clear_display);
