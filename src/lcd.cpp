@@ -7,6 +7,7 @@
 #include <string_view>
 
 #include "hardware/gpio.h"
+#include "pico/stdlib.h"
 
 using namespace hd44780pico;
 
@@ -117,7 +118,7 @@ void LcdDisplay::init(BitMode bit_mode, LineMode line_mode) {
     init_sequence();
 }
 
-void LcdDisplay::init_io() {} // Optional to implement.
+void LcdDisplay::init_io() const {} // Optional to implement.
 
 void LcdDisplay::clear_display() {
     execute_cmd(bm_clear_display);

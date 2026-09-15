@@ -60,8 +60,7 @@ namespace hd44780pico {
     class LcdDisplay {
     public:
         explicit LcdDisplay(Mapping mapping_);
-
-        void init(BitMode bit_mode=BitMode::FOUR_BIT, LineMode line_mode=LineMode::TWO_LINES_5_8);
+        virtual void init(BitMode bit_mode=BitMode::FOUR_BIT, LineMode line_mode=LineMode::TWO_LINES_5_8);
         void clear_display();
         void return_home();
         void putc(char c);
